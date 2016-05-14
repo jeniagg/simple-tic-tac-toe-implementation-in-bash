@@ -26,15 +26,43 @@ read symbol2
 echo "\n$name1 plays with $symbol1" | tee -a $file
 echo "$name2 plays with $symbol2\n" | tee -a $file
 
+# get a field
+field(){
+lines=$(head -n$(( ( $1 - 1 ) * 3 + $2 )) $3 | tail -n1)
+echo "$lines"
+}
+
+# drawing a new board
+board() {
+touch new_board.tmp
+for i in $(seq 1 3)
+do
+	for j in $(seq 1 3)
+	do
+		f=$(field $i $j board.tmp)
+		if [ $i -ne $1 ] || [ $j -ne $2 ]
+		then
+			echo "$f" >>  new_board.tmp
+		else
+			echo "$3" >>  new_board.tmp
+		fi
+	done
+done
+mv new_board.tmp board.tmp
+}
+
+# empty file for the board
+touch board.tmp
+
 #drawing the gameboard
-a=$(echo "   ")
-for i in 1 2 3 4 5 6 7 
+
+for i in $(seq 1 7)    
 do
 	if [ $i -eq 2 ] || [ $i -eq 4 ] || [ $i -eq 6 ]
 		then 
-	 	echo "*$a*$a*$a*" | tee -a $file
+	 	echo "* * * *" | tee -a $file
 	else
-		echo "* * * * * * *" | tee -a $file
+		echo "*******" | tee -a $file
 	fi 
 done
 
@@ -59,7 +87,6 @@ do
 		echo "the first coordinate is incorrect, please enter a new one, which is 1, 2 or 3"
 		read x1
 	done
-
 #validate second coordinate
 	until [ $y1 -eq 1 ] || [ $y1 -eq 2 ] || [ $y1 -eq 3 ]
 	do
@@ -86,150 +113,20 @@ do
 
 	# echo "move $moves symbol $current_symbol" | tee -a $file
 
-# position 1 1
-	if  [ $x1 -eq 1 ] && [ $y1 -eq 1 ]
-	then
-		for i in 1 2 3 4 5 6 7
-		do
-        		if [ $i -eq 2 ]
-               		then
-               			echo "* $current_symbol *$a*$a*" | tee -a $file
-			elif [ $i -eq 4 ] || [ $i -eq 6 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file
-       			else
-                		echo "* * * * * * *" | tee -a $file
-        		fi
-		done
-	fi
-# position 1 2
-	if [ $x1 -eq 1 ] && [ $y1 -eq 2 ]
-	then
-		for i in $(seq 1 7)
-		do 
-			if [ $i -eq 2 ]
-			then
-				echo "*$a* $current_symbol *$a*" | tee -a $file
-			elif [ $i -eq 4 ] || [ $i -eq 6 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file
-			else
-				echo "* * * * * * *" | tee -a $file
-			fi
-		done
-	fi
-# position 1 3
-	if [ $x1 -eq 1 ] && [ $y1 -eq 3 ]
-	then
-		for i in 1 2 3 4 5 6 7
-		do
-			if [ $i -eq 2 ]
-			then
-				echo "*$a*$a* $current_symbol *" | tee -a $file
-			elif [ $i -eq 4 ] || [ $i -eq 6 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file 
-			else
-				echo "* * * * * * *" | tee -a $file
-			fi
-		done
-	fi
-# position 2 1
-	if [ $x1 -eq 2 ] && [ $y1 -eq 1 ]
-	then
-		for i in 1 2 3 4 5 6 7
-		do
-			if [ $i -eq 4 ]
-			then
-				echo "* $current_symbol *$a*$a*" | tee -a $file
-			elif [ $i -eq 2 ] || [ $i -eq 6 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file 
-			else
-				echo "* * * * * * *" | tee -a $file
-			fi
-		done
-	fi
-# position 2 2
-	if [ $x1 -eq 2 ] && [ $y1 -eq 2 ]
-	then
-		for i in 1 2 3 4 5 6 7
-		do
-			if [ $i -eq 4 ]
-			then
-				echo "*$a* $current_symbol *$a*" | tee -a $file
-			elif [ $i -eq 2 ] || [ $i -eq 6 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file
-			else
-				echo "* * * * * * *" | tee -a $file
-			fi
-		done
-	fi
-# position 2 3
-	if [ $x1 -eq 2 ] && [ $y1 -eq 3 ]
-	then
-		for i in 1 2 3 4 5 6 7
-		do
-			if [ $i -eq 4 ]
-			then
-				echo "*$a*$a* $current_symbol *" | tee -a $file
-			elif [ $i -eq 2 ] || [ $i -eq 6 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file
-			else
-				echo "* * * * * * *" | tee -a $file
-			fi
-		done
-	fi
-# position 3 1
-	if [ $x1 -eq 3 ] && [ $y1 -eq 1 ]
-	then
-		for i in 1 2 3 4 5 6 7
-		do
-			if [ $i -eq 6 ]
-			then
-				echo "* $current_symbol *$a*$a*" | tee -a $file
-			elif [ $i -eq 2 ] || [ $i -eq 4 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file
-			else
-				echo "* * * * * * *" | tee -a $file
-			fi
-		done
-	fi
-# position 3 2
-	if [ $x1 -eq 3 ] && [ $y1 -eq 2 ]
-	then
-		for i in 1 2 3 4 5 6 7
-		do
-			if [ $i -eq 6 ]
-			then
-				echo "*$a* $current_symbol *$a*" | tee -a $file
-			elif [ $i -eq 2 ] || [ $i -eq 4 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file
-			else
-				echo "* * * * * * *" | tee -a $file
-			fi
-		done
-	fi
-# position 3 3
-	if [ $x1 -eq 3 ] && [ $y1 -eq 3 ]
-	then
-		for i in 1 2 3 4 5 6 7
-		do
-			if [ $i -eq 6 ]
-			then
-				echo "*$a*$a* $current_symbol *" | tee -a $file
-			elif [ $i -eq 2 ] || [ $i -eq 4 ]
-			then
-				echo "*$a*$a*$a*" | tee -a $file 
-			else
-				echo "* * * * * * *" | tee -a $file
-			fi
-		done
-	fi
+board $x1 $y1 $current_symbol
 
-
+	for i in $(seq 1 3)
+	do
+		for j in $(seq 1 3)
+		do
+			b=$(field $i $j board.tmp)
+			if [ -z "$b" ]
+			then
+				b=" " 
+			fi
+			echo -n "|$b"
+		done
+		echo "|"
+	done
+	
 done
