@@ -1,4 +1,4 @@
-#!/bin/sh
+#!\bin\sh
 
 #names of the two players
 echo "\nThe name of the first player is: "
@@ -6,7 +6,7 @@ read name1
 echo "\nThe name of the second player is: "
 read name2
 
-#making a dir
+#making a dir if it is not exist
 if ! [ -d ~/tic-tac-toe ]
 	then
 	mkdir ~/tic-tac-toe
@@ -18,7 +18,7 @@ file_name=$(echo "$name1-$name2-$timestamp.log")
 file=~/tic-tac-toe/$file_name
 touch $file
 
-# symbols for the two players
+#symbols for the two players
 echo "\nThe symbol for $name1 is "
 read symbol1
 echo "\nThe symbol for $name2 is "
@@ -52,22 +52,22 @@ done
 mv new_board.tmp board.tmp
 }
 
-# check for a winner
+# check who player wins if there is a winning row
 win_test(){
-	win1=$( grep "$symbol1" check.tmp |wc -l)
+	h1s=$( grep "$symbol1" check.tmp |wc -l)
 
-	if [ $win1 -eq 3 ]
+	if [ $h1s -eq 3 ]
 	then
-		echo "$name1, you win" | tee -a $file
+		echo "$name1, you win"
 		rm board.tmp
 		rm check.tmp
 		exit
 	fi
  
-	win2=$(grep "$symbol2" check.tmp | wc -l)
-	if [ $win2 -eq 3 ]
+	h2s=$(grep "$symbol2" check.tmp | wc -l)
+	if [ $h2s -eq 3 ]
 	then      
-		echo "$name2, you win" | tee -a $file
+		echo "$name2, you win"
 		rm board.tmp
 		rm check.tmp
 		exit
@@ -90,12 +90,6 @@ do
 	fi 
 done
 
-# turning moves into coordinates
-#cordinates(){
-#x1=$( expr substr $player_move 2 1 )
-#y1=$( expr substr $player_move 4 1 )
-#}
-
 #moves
 
 for moves in $(seq 1 9)
@@ -104,50 +98,34 @@ do
 	# player one or player two
 	if [ $moves -eq 1 ] || [ $moves -eq 3 ] || [ $moves -eq 5 ] || [ $moves -eq 7 ] || [ $moves -eq 9 ]
 	then
-		echo "$name1, please enter a move in format (x,y), where x and y are 1,2 or 3"
-		echo "$name1's move" >> $file
-		read  x1 y1
-	#	cordinates
-	else
-		echo "$name2, please enter a move in format (x,y), where x and y are 1,2 or 3"
-		echo "$name2's move" >> $file
+		echo "$name1, please enter a move: " | tee -a $file
 		read x1 y1
-	#	cordinates
+	else
+		echo "$name2, please enter a move: " | tee -a $file
+		read x1 y1
 	fi
 
-#checking if the move have been made already and the board is not empty there
-#        while [ $(grep "$x1 $y1" $file| wc -l) -gt 0 ]
- #       do
- #               echo "error, already on the board"
- #               read x1 y1
-        #        cordinates
-#        done
-
-
 #validate first coordinate
-	until  [ $x1 -eq 1 ] || [ $x1 -eq 2 ] || [ $x1 -eq 3 ]  
+	until [ $x1 -eq 1 ] || [ $x1 -eq 2 ] || [ $x1 -eq 3 ]
 	do
-		echo "the first coordinate is incorrect, please enter a new move ([1-3],[1-3])"
+		echo "the first coordinate is incorrect, please enter a new move, which is 1, 2 or 3"
 		read x1 y1
-	#	cordinates
 	done
 #validate second coordinate
 	until [ $y1 -eq 1 ] || [ $y1 -eq 2 ] || [ $y1 -eq 3 ]
 	do
-		echo "the second coordinate is incorrect, please enter a new move ([1-3],[1-3])"
+		echo "the second coordinate is incorrect, please enter a new move, which is 1, 2 or 3"
 		read x1 y1
-	#	cordinates
 	done
 
-# checking if the move have been made already and the board is not empty there
+#checking if the move have been made already and the board is not empty there
 	while [ $(grep "$x1 $y1" $file| wc -l) -gt 0 ]
 	do
-		echo "error, already on the board"
+		echo "error, already there"
 		read x1 y1
-	#	cordinates
 	done
 
-	echo "move: ($x1, $y1)" | tee -a $file
+	echo "move: $x1 $y1" | tee -a $file
 	
 #deciding witch symbol must appear on the board
 	if [ $moves -eq 1 ] || [ $moves -eq 3 ] || [ $moves -eq 5 ] || [ $moves -eq 7 ] || [ $moves -eq 9 ]
@@ -157,7 +135,9 @@ do
 		current_symbol=$symbol2
 	fi
 
-	board $x1 $y1 $current_symbol
+	# echo "move $moves symbol $current_symbol" | tee -a $file
+
+board $x1 $y1 $current_symbol
 
 	echo " *************" | tee -a $file
 	for i in $(seq 1 3)
@@ -174,6 +154,7 @@ do
 		echo " * " | tee -a $file
 			echo " *************" | tee -a $file
 	done
+
 
 touch check.tmp
 
@@ -207,6 +188,7 @@ touch check.tmp
 		win_test
 
 # winning diagonal first
+
 		$(head -n1 board.tmp > check.tmp)
 		$(head -n5 board.tmp | tail -n1 >> check.tmp)
 		$(tail -n1 board.tmp >> check.tmp)
@@ -223,4 +205,5 @@ touch check.tmp
 done
 rm board.tmp
 rm check.tmp
-echo "Nobody wins" | tee -a $file
+echo "Nobody wins"
+
