@@ -51,24 +51,47 @@ done
 mv new_board.tmp board.tmp
 }
 
+# check who player wins if there is a winning row
+win_test(){
+	h1s=$( grep "$symbol1" check.tmp |wc -l)
+
+	if [ $h1s -eq 3 ]
+	then
+		echo "$name1, you win"
+		rm board.tmp
+		rm check.tmp
+		exit
+	fi
+ 
+	h2s=$(grep "$symbol2" check.tmp | wc -l)
+	if [ $h2s -eq 3 ]
+	then      
+		echo "$name2, you win"
+		rm board.tmp
+		rm check.tmp
+		exit
+	fi
+}
+
+
 # empty file for the board
 touch board.tmp
 
 #drawing the gameboard
-
+echo "The gameboard looks like this: " | tee -a $file
 for i in $(seq 1 7)    
 do
 	if [ $i -eq 2 ] || [ $i -eq 4 ] || [ $i -eq 6 ]
 		then 
-	 	echo "* * * *" | tee -a $file
+	 	echo " *   *   *   *" | tee -a $file
 	else
-		echo "*******" | tee -a $file
+		echo " *************" | tee -a $file
 	fi 
 done
 
 #moves
 
-for moves in 1 2 3 4 5 6 7 8 9
+for moves in $(seq 1 9)
 do
 # move
 	# player one or player two
@@ -84,14 +107,14 @@ do
 #validate first coordinate
 	until [ $x1 -eq 1 ] || [ $x1 -eq 2 ] || [ $x1 -eq 3 ]
 	do
-		echo "the first coordinate is incorrect, please enter a new one, which is 1, 2 or 3"
-		read x1
+		echo "the first coordinate is incorrect, please enter a new move, which is 1, 2 or 3"
+		read x1 y1
 	done
 #validate second coordinate
 	until [ $y1 -eq 1 ] || [ $y1 -eq 2 ] || [ $y1 -eq 3 ]
 	do
-		echo "the second coordinate is incorrect, please enter a new one, which is 1, 2 or 3"
-		read y1
+		echo "the second coordinate is incorrect, please enter a new move, which is 1, 2 or 3"
+		read x1 y1
 	done
 
 #checking if the move have been made already and the board is not empty there
@@ -115,6 +138,7 @@ do
 
 board $x1 $y1 $current_symbol
 
+	echo " *************" | tee -a $file
 	for i in $(seq 1 3)
 	do
 		for j in $(seq 1 3)
@@ -124,9 +148,61 @@ board $x1 $y1 $current_symbol
 			then
 				b=" " 
 			fi
-			echo -n "|$b"
+			echo -n " * $b" | tee -a $file
 		done
-		echo "|"
+		echo " * " | tee -a $file
+			echo " *************" | tee -a $file
 	done
+
+
+touch check.tmp
+
+# check for winning row	
+	for i in $(seq 1 3)
+	do
+		$(head -n3 board.tmp > check.tmp)
+		win_test
+		$(head -n6 board.tmp | tail -n3 > check.tmp)
+		win_test
+		$(tail -n3 board.tmp > check.tmp)
+		win_test
 	
+
+# winnig first col
+		$(head -n1 board.tmp > check.tmp)
+		$(head -n4 board.tmp | tail -n1 >> check.tmp)
+		$(tail -n3 board.tmp | head -n1 >> check.tmp)
+		win_test
+
+# winning second col
+		$(head -n2 board.tmp | tail -n1 > check.tmp)
+		$(head -n5 board.tmp | tail -n1 >> check.tmp)
+		$(tail -n2 board.tmp | head -n1 >> check.tmp)
+		win_test
+
+# winning third col
+		$(head -n3 board.tmp | tail -n1 > check.tmp)
+		$(tail -n4 board.tmp | head -n1 >> check.tmp)
+		$(tail -n1 board.tmp >> check.tmp)
+		win_test
+
+# winning diagonal first
+
+		$(head -n1 board.tmp > check.tmp)
+		$(head -n5 board.tmp | tail -n1 >> check.tmp)
+		$(tail -n1 board.tmp >> check.tmp)
+		win_test
+
+# winning diagonal second
+		$(head -n3 board.tmp | tail -n1 > check.tmp)
+		$(head -n5 board.tmp | tail -n1 >> check.tmp)
+		$(tail -n3 board.tmp | head -n1 >> check.tmp)
+		win_test
+
+	done
+
 done
+rm board.tmp
+rm check.tmp
+echo "Nobody wins"
+
