@@ -52,11 +52,11 @@ done
 mv new_board.tmp board.tmp
 }
 
-# check who player wins if there is a winning row
+# check for a winner
 win_test(){
-	h1s=$( grep "$symbol1" check.tmp |wc -l)
+	win1=$( grep "$symbol1" check.tmp |wc -l)
 
-	if [ $h1s -eq 3 ]
+	if [ $win1 -eq 3 ]
 	then
 		echo "$name1, you win"
 		rm board.tmp
@@ -64,8 +64,8 @@ win_test(){
 		exit
 	fi
  
-	h2s=$(grep "$symbol2" check.tmp | wc -l)
-	if [ $h2s -eq 3 ]
+	win2=$(grep "$symbol2" check.tmp | wc -l)
+	if [ $win2 -eq 3 ]
 	then      
 		echo "$name2, you win"
 		rm board.tmp
@@ -90,41 +90,45 @@ do
 	fi 
 done
 
-#moves
+# check if the move is already on the board
+all_there(){
+	while [ $(grep "$x1 $y1" $file| wc -l) -gt 0 ]
+        do     
+		echo "error, already there"
+		read x1 y1
+        done
 
+}
+
+# validate coordinates
+validation(){
+	all_there $x1 $y1
+        until ([ $x1 -eq 1 ] || [ $x1 -eq 2 ] || [ $x1 -eq 3 ] )&& ( [ $y1 -eq 1 ] || [ $y1 -eq 2 ] || [ $y1 -eq 3 ])
+	do
+                echo "incorrect coordinates, please enter a new move [1-3] [1-3]"
+                read x1 y1
+		all_there $x1 $y1
+        done
+	all_there $x1 $y1
+}
+
+# moves
 for moves in $(seq 1 9)
 do
-# move
+
 	# player one or player two
 	if [ $moves -eq 1 ] || [ $moves -eq 3 ] || [ $moves -eq 5 ] || [ $moves -eq 7 ] || [ $moves -eq 9 ]
 	then
-		echo "$name1, please enter a move: " | tee -a $file
+		echo "$name1, please enter a move [1-3] [1-3] " | tee -a $file
 		read x1 y1
+		validation $x1 $y1
 	else
-		echo "$name2, please enter a move: " | tee -a $file
+		echo "$name2, please enter a move [1-3] [1-3] " | tee -a $file
 		read x1 y1
+		validation $x1 $y1
+	
 	fi
-
-#validate first coordinate
-	until [ $x1 -eq 1 ] || [ $x1 -eq 2 ] || [ $x1 -eq 3 ]
-	do
-		echo "the first coordinate is incorrect, please enter a new move, which is 1, 2 or 3"
-		read x1 y1
-	done
-#validate second coordinate
-	until [ $y1 -eq 1 ] || [ $y1 -eq 2 ] || [ $y1 -eq 3 ]
-	do
-		echo "the second coordinate is incorrect, please enter a new move, which is 1, 2 or 3"
-		read x1 y1
-	done
-
-#checking if the move have been made already and the board is not empty there
-	while [ $(grep "$x1 $y1" $file| wc -l) -gt 0 ]
-	do
-		echo "error, already there"
-		read x1 y1
-	done
-
+	
 	echo "move: $x1 $y1" | tee -a $file
 	
 #deciding witch symbol must appear on the board
@@ -206,4 +210,3 @@ done
 rm board.tmp
 rm check.tmp
 echo "Nobody wins"
-
