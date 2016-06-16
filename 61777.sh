@@ -122,8 +122,9 @@ do
 done
 
 # check if the move is already on the board
+counter=0
 all_there(){
-	while [ $(grep "$x1 $y1" $file| wc -l) -gt 0 ]
+	while [ $(grep "$x1 $y1" $file| wc -l) -gt $counter ]
         do     
 		echo "error, already there"
 		read x1 y1
@@ -149,10 +150,12 @@ playAgain(){
 	if [ "$answer" = "y" ]
 		then	
 			touch board.tmp
-			timestamp=$(date +%y%m%d%H%M%S)
-			file_name=$(echo "$name1-$name2-$timestamp.log")
-			file=~/.tic-tac-toe/$file_name
-			touch $file
+			
+			#timestamp=$(date +%y%m%d%H%M%S)
+			#file_name=$(echo "$name1-$name2-$timestamp.log")
+			#file=~/.tic-tac-toe/$file_name
+			#touch $filei
+			counter=$(expr $(( $counter + 1 )) )
 
 			echo "\n$name1 plays with $symbol1" | tee -a $file
 			echo "$name2 plays with $symbol2\n" | tee -a $file
